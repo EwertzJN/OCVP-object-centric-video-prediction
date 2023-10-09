@@ -1,7 +1,7 @@
 """ Configs """
 
 import os
-from CONFIG import CONFIG
+from ..CONFIG import CONFIG
 
 
 def get_available_configs():

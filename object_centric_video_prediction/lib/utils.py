@@ -15,8 +15,8 @@ import numpy as np
 import torch
 from torch.utils.tensorboard import SummaryWriter
 
-from lib.logger import log_function
-from CONFIG import CONFIG
+from .logger import log_function
+from ..CONFIG import CONFIG
 
 
 def set_random_seed(random_seed=None):

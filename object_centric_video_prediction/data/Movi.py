@@ -16,7 +16,7 @@ import torch
 from torch.utils.data import Dataset
 from torchvision import transforms
 
-from CONFIG import CONFIG
+from ..CONFIG import CONFIG
 PATH = CONFIG["paths"]["data_path"]
 
 

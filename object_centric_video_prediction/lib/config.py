@@ -7,9 +7,9 @@ TODO:
 import os
 import json
 
-from lib.logger import print_
-from lib.utils import timestamp
-from CONFIG import DEFAULTS, CONFIG
+from .logger import print_
+from .utils import timestamp
+from ..CONFIG import DEFAULTS, CONFIG
 
 
 class Config(dict):

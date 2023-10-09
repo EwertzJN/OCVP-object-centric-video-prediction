@@ -6,8 +6,8 @@ import os.path as osp
 import torch
 from PIL import Image
 
-from data import OBJ3D
-from CONFIG import CONFIG
+from . import OBJ3D
+from ..CONFIG import CONFIG
 
 PATH = CONFIG["paths"]["data_path"]
 

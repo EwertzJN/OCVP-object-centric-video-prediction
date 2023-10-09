@@ -7,10 +7,10 @@ import json
 import piqa
 import numpy as np
 import torch
-from lib.logger import print_
-from lib.utils import create_directory
-from lib.visualizations import visualize_metric
-from CONFIG import METRICS
+from .logger import print_
+from .utils import create_directory
+from .visualizations import visualize_metric
+from ..CONFIG import METRICS
 from scipy.special import comb
 
 

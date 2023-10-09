@@ -9,7 +9,7 @@ import torch
 import torch.nn as nn
 from fvcore.nn import FlopCountAnalysis, flop_count_str, ActivationCountAnalysis
 
-from lib.logger import print_, log_info
+from ..lib.logger import print_, log_info
 
 
 def build_grid(resolution, vmin=-1., vmax=1., device=None):

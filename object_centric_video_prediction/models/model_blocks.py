@@ -6,7 +6,7 @@ import math
 import torch
 import torch.nn as nn
 
-from models.model_utils import build_grid
+from .model_utils import build_grid
 
 __all__ = ["ConvBlock", "ConvTransposeBlock", "SoftPositionEmbed", "PositionalEncoding"]
 

@@ -6,7 +6,7 @@ import torch
 import torch.nn as nn
 from math import sqrt
 
-from CONFIG import INITIALIZERS
+from ..CONFIG import INITIALIZERS
 
 
 ENCODER_RESOLUTION = (8, 14)

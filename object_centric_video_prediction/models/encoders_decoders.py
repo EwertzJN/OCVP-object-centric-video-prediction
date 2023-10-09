@@ -5,7 +5,7 @@ Implementation of decoder modules
 import torch.nn as nn
 import torch.nn.functional as F
 
-from models.model_blocks import ConvBlock
+from .model_blocks import ConvBlock
 
 ENCODERS = ["ConvEncoder"]
 DECODERS = ["ConvDecoder", "UpsampleDecoder"]

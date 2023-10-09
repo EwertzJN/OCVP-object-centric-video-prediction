@@ -4,8 +4,8 @@ Methods for loading specific datasets, fitting data loaders and other
 
 # from torchvision import datasets
 from torch.utils.data import DataLoader
-from data import OBJ3D, MOVI, RobotDataset
-from CONFIG import CONFIG, DATASETS
+from . import OBJ3D, MOVI, RobotDataset
+from ..CONFIG import CONFIG, DATASETS
 
 
 def load_data(exp_params, split="train"):

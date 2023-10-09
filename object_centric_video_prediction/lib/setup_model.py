@@ -6,12 +6,12 @@ import os
 import traceback
 import torch
 
-from lib.logger import print_, log_function
-from lib.schedulers import LRWarmUp, ExponentialLRSchedule
-from lib.utils import create_directory
-import models
-import models.Predictors as predictors
-from CONFIG import MODELS, PREDICTORS
+from .logger import print_, log_function
+from .schedulers import LRWarmUp, ExponentialLRSchedule
+from .utils import create_directory
+from .. import models
+from ..models import Predictors as predictors
+from ..CONFIG import MODELS, PREDICTORS
 
 
 @log_function

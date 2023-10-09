@@ -4,8 +4,8 @@ Loss functions and loss-related utils
 
 import torch
 import torch.nn as nn
-from lib.logger import log_info
-from CONFIG import LOSSES
+from .logger import log_info
+from ..CONFIG import LOSSES
 
 
 class LossTracker:

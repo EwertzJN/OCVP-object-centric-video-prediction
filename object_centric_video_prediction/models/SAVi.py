@@ -7,10 +7,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from lib.logger import print_
-from models import SlotAttention, SoftPositionEmbed, get_encoder, get_decoder,\
+from ..lib.logger import print_
+from ..models import SlotAttention, SoftPositionEmbed, get_encoder, get_decoder,\
     TransformerBlock, get_initalizer
-from models.model_utils import init_xavier_
+from .model_utils import init_xavier_
 
 
 class SAVi(nn.Module):

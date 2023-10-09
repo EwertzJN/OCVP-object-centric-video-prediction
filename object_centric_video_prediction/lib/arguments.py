@@ -5,10 +5,10 @@ Methods for processing command line arguments
 import os
 import argparse
 
-from configs import get_available_configs
-from lib.utils import split_path
+from ..configs import get_available_configs
+from .utils import split_path
 
-from CONFIG import CONFIG, PREDICTORS
+from ..CONFIG import CONFIG, PREDICTORS
 
 
 def create_experiment_arguments():

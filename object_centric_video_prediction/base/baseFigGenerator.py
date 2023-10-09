@@ -9,12 +9,12 @@ import os
 from tqdm import tqdm
 import torch
 
-from lib.config import Config
-from lib.logger import log_function, for_all_methods
-import lib.setup_model as setup_model
-import lib.utils as utils
-import data
-from models.model_utils import freeze_params
+from ..lib.config import Config
+from ..lib.logger import log_function, for_all_methods
+from ..lib import setup_model as setup_model
+from ..lib import utils as utils
+from .. import data
+from ..models.model_utils import freeze_params
 
 
 @for_all_methods(log_function)

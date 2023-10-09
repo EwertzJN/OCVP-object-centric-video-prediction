@@ -5,9 +5,9 @@ Implementation of predictor modules and wrapper functionalities
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from lib.logger import print_
+from ..lib.logger import print_
 
-from models.model_blocks import PositionalEncoding
+from .model_blocks import PositionalEncoding
 
 
 class PredictorWrapper(nn.Module):

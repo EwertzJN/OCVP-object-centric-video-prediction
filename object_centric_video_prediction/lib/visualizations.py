@@ -12,7 +12,7 @@ import imageio
 from torchvision.utils import draw_segmentation_masks
 from webcolors import name_to_rgb
 
-from CONFIG import COLORS
+from ..CONFIG import COLORS
 
 
 def visualize_sequence(sequence, savepath=None,  tag="sequence", add_title=True, add_axis=False, n_cols=10,

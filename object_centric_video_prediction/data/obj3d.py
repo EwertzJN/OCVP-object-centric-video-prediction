@@ -11,7 +11,7 @@ import os.path as osp
 import torch
 from PIL import Image, ImageFile
 
-from CONFIG import CONFIG
+from ..CONFIG import CONFIG
 PATH = CONFIG["paths"]["data_path"]
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True

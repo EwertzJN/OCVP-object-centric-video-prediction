@@ -11,9 +11,9 @@ from torchvision import transforms
 import tensorflow_datasets as tfds
 # from itertools import islice
 import tensorflow as tf
-import lib.visualizations as visualizations
+from ..lib import visualizations as visualizations
 
-from CONFIG import CONFIG
+from ..CONFIG import CONFIG
 PATH = CONFIG["paths"]["data_path"]
 
 # Hide GPU from visible devices

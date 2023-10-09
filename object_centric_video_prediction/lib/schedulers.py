@@ -3,7 +3,7 @@ Implementation of learning rate schedulers, early stopping and other utils
 for improving optimization
 """
 
-from lib.logger import print_
+from .logger import print_
 
 
 def update_scheduler(scheduler, exp_params, control_metric=None, iter=-1, end_epoch=False):

@@ -6,13 +6,12 @@ import os.path as osp
 import torch
 from PIL import Image
 
-from . import OBJ3D
 from ..CONFIG import CONFIG
 
 PATH = CONFIG["paths"]["data_path"]
 
 
-class RobotDataset(OBJ3D):
+class RobotDataset:
     """
     DataClass for datasets generated with the visual-block-builder package.
 
@@ -37,8 +36,6 @@ class RobotDataset(OBJ3D):
         """
         Dataset Initializer
         """
-        super().__init__(mode, ep_len, sample_length, random_start)
-
         assert mode in ["train", "val", "valid", "eval", "test"], f"Unknown dataset split {mode}..."
         mode = "val" if mode in ["val", "valid"] else mode
         mode = "test" if mode in ["test", "eval"] else mode
@@ -100,3 +97,13 @@ class RobotDataset(OBJ3D):
         targets = img
         all_reps = {"videos": img}
         return img, targets, actions, all_reps
+
+    def __len__(self):
+        """
+        Number of episodes in the dataset
+        """
+        length = len(self.epsisodes)
+        return length
+
+
+#

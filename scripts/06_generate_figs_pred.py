@@ -9,14 +9,14 @@ from tqdm import tqdm
 import numpy as np
 import torch
 
-from base.baseFigGenerator import BaseFigGenerator
+from object_centric_video_prediction.base.baseFigGenerator import BaseFigGenerator
 
-from data.load_data import unwrap_batch_data
-from lib.arguments import get_generate_figs_pred
-from lib.logger import print_
-from lib.metrics import MetricTracker
-import lib.utils as utils
-from lib.visualizations import add_border, make_gif, visualize_qualitative_eval, visualize_aligned_slots, \
+from object_centric_video_prediction.data.load_data import unwrap_batch_data
+from object_centric_video_prediction.lib.arguments import get_generate_figs_pred
+from object_centric_video_prediction.lib.logger import print_
+from object_centric_video_prediction.lib.metrics import MetricTracker
+import object_centric_video_prediction.lib.utils as utils
+from object_centric_video_prediction.lib.visualizations import add_border, make_gif, visualize_qualitative_eval, visualize_aligned_slots, \
     visualize_tight_row, masks_to_rgb, idx_to_one_hot, overlay_segmentations, COLORS
 
 disp = None

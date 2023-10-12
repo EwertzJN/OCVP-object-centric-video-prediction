@@ -7,13 +7,13 @@ import os
 import matplotlib.pyplot as plt
 import torch
 
-from base.baseFigGenerator import BaseFigGenerator
+from object_centric_video_prediction.base.baseFigGenerator import BaseFigGenerator
 
-from data import unwrap_batch_data
-from lib.arguments import get_generate_figs_savi
-from lib.logger import print_
-import lib.utils as utils
-from lib.visualizations import visualize_recons, visualize_decomp
+from object_centric_video_prediction.data import unwrap_batch_data
+from object_centric_video_prediction.lib.arguments import get_generate_figs_savi
+from object_centric_video_prediction.lib.logger import print_
+import object_centric_video_prediction.lib.utils as utils
+from object_centric_video_prediction.lib.visualizations import visualize_recons, visualize_decomp
 
 
 class FigGenerator(BaseFigGenerator):

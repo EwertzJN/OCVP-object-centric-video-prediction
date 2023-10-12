@@ -7,12 +7,12 @@ This module supports two different evaluations:
 
 import torch
 
-from data import unwrap_batch_data, unwrap_batch_data_masks
-from lib.arguments import get_predictor_evaluation_arguments
-from lib.logger import Logger, print_
-import lib.utils as utils
+from object_centric_video_prediction.data import unwrap_batch_data, unwrap_batch_data_masks
+from object_centric_video_prediction.lib.arguments import get_predictor_evaluation_arguments
+from object_centric_video_prediction.lib.logger import Logger, print_
+import object_centric_video_prediction.lib.utils as utils
 
-from base.basePredictorEvaluator import BasePredictorEvaluator
+from object_centric_video_prediction.base.basePredictorEvaluator import BasePredictorEvaluator
 
 
 class Evaluator(BasePredictorEvaluator):

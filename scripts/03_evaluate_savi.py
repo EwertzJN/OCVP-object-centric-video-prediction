@@ -1,24 +1,24 @@
 """
-Evaluating a SAVI model checkpoint on a dataset without ground truth masks.
-Since we do not have masks to compare with, we simply evaluate the visual qualitiy
-of the reconstructed images using video-prediction metrics: PSNR, SSIM and LPIPS.
+Evaluating a SAVI model checkpoint using object-centric metrics
+This evalaution can only be performed on datasets with annotated segmentation masks
 """
 
-from data.load_data import unwrap_batch_data
-from lib.arguments import get_sa_eval_arguments
-from lib.logger import Logger, print_, log_function, for_all_methods
-from lib.metrics import MetricTracker
-import lib.utils as utils
+import torch
 
-from base.baseEvaluator import BaseEvaluator
+from object_centric_video_prediction.data import unwrap_batch_data_masks
+from object_centric_video_prediction.lib.arguments import get_sa_eval_arguments
+from object_centric_video_prediction.lib.logger import Logger, print_, log_function, for_all_methods
+from object_centric_video_prediction.lib.metrics import MetricTracker
+import object_centric_video_prediction.lib.utils as utils
+
+from object_centric_video_prediction.base.baseEvaluator import BaseEvaluator
 
 
 @for_all_methods(log_function)
 class Evaluator(BaseEvaluator):
     """
-    Evaluating a SAVI model checkpoint on a dataset without ground truth masks.
-    Since we do not have masks to compare with, we simply evaluate the visual qualitiy
-    of the reconstructed images using video-prediction metrics: PSNR, SSIM and LPIPS.
+    Class for evaluating a SAVI model using object-centric metrics.
+    This evalaution can only be performed on datasets with annotated segmentation masks
     """
 
     def set_metric_tracker(self):
@@ -26,9 +26,17 @@ class Evaluator(BaseEvaluator):
         Initializing the metric tracker
         """
         self.metric_tracker = MetricTracker(
-                exp_path=exp_path,
-                metrics=["psnr", "ssim", "lpips"]
+                exp_path,
+                metrics=["segmentation_ari", "IoU"]
             )
+        return
+
+    def load_data(self):
+        """
+        Loading data
+        """
+        super().load_data()
+        self.test_set.get_masks = True
         return
 
     def forward_eval(self, batch_data, **kwargs):
@@ -46,17 +54,20 @@ class Evaluator(BaseEvaluator):
         pred_data: dict
             Predictions from the model for the current batch of data
         """
-        videos, targets, _, initializer_kwargs = unwrap_batch_data(self.exp_params, batch_data)
-        videos, targets = videos.to(self.device), targets.to(self.device)
+        videos, masks, _, initializer_kwargs = unwrap_batch_data_masks(self.exp_params, batch_data)
+        videos, masks = videos.to(self.device), masks.to(self.device)
         out_model = self.model(
                 videos,
                 num_imgs=videos.shape[1],
                 **initializer_kwargs
             )
         slot_history, reconstruction_history, individual_recons_history, masks_history = out_model
+
+        # evaluation
+        predicted_combined_masks = torch.argmax(masks_history, dim=2).squeeze(2)
         self.metric_tracker.accumulate(
-                preds=reconstruction_history.clamp(0, 1),
-                targets=targets.clamp(0, 1)
+                preds=predicted_combined_masks,
+                targets=masks
             )
         return
 
@@ -65,7 +76,7 @@ if __name__ == "__main__":
     utils.clear_cmd()
     exp_path, args = get_sa_eval_arguments()
     logger = Logger(exp_path=exp_path)
-    logger.log_info("Starting SAVi visual quality evaluation procedure", message_type="new_exp")
+    logger.log_info("Starting SAVi object-cetric evaluation procedure", message_type="new_exp")
 
     print_("Initializing Evaluator...")
     print_("Args:")
@@ -82,5 +93,6 @@ if __name__ == "__main__":
     evaluator.setup_model()
     print_("Starting evaluation")
     evaluator.evaluate()
+
 
 #

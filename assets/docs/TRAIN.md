@@ -5,7 +5,7 @@ We provide our entire pipeline for training a SAVi model for object-centric vide
 
 ## Train SAVi Video Decomposition Model
 
-**1.** Create a new experiment using the `src/01_create_experiment.py` script. This will create a new experiments folder in the `/experiments` directory.
+**1.** Create a new experiment using the `scripts/01_create_experiment.py` script. This will create a new experiments folder in the `/experiments` directory.
 
 ```
 usage 01_create_experiment.py [-h] -d EXP_DIRECTORY [--name NAME] [--config CONFIG]
@@ -41,8 +41,8 @@ optional arguments:
 Below we provide an example of how to train a new SAVi model:
 
 ```
-python src/01_create_experiment.py -d new_exps --name my_exp
-python src/02_train_savi.py -d experiments/new_exps/my_exp
+python scripts/01_create_experiment.py -d new_exps --name my_exp
+python scripts/02_train_savi.py -d experiments/new_exps/my_exp
 ```
 
 
@@ -51,7 +51,7 @@ python src/02_train_savi.py -d experiments/new_exps/my_exp
 Training an object-centric video prediction requires having a pretrained SAVi model. You can use either our provided pretrained models, or you can train your own SAVi video decomposition models.
 
 
-**1.** Create a new predictor experiment using the `src/src/01_create_predictor_experiment.py` script. This will create a new predictor folder in the specified experiment directory.
+**1.** Create a new predictor experiment using the `scripts/01_create_predictor_experiment.py` script. This will create a new predictor folder in the specified experiment directory.
 
 ```
 usage: 01_create_predictor_experiment.py [-h] -d EXP_DIRECTORY --name NAME --predictor_name PREDICTOR_NAME
@@ -96,12 +96,12 @@ optional arguments:
 Below we provide an example of how to train an object-centric predictor given a pretrained SAVi model. This example continues the example above
 
 ```
-python src/01_create_predictor_experiment.py \
+python scripts/01_create_predictor_experiment.py \
   -d new_exps/my_exp \
   --name my_OCVPSeq_model \
   --predictor_name OCVP-Seq
 
-python src/04_train_predictor.py \
+python scripts/04_train_predictor.py \
   -d experiments/new_exps/my_exp
   --savi_model checkpoint_epoch_final.pth
   --name_predictor_experiment my_OCVPSeq_model

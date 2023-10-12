@@ -13,8 +13,13 @@ conda env create -f environment.yml
 conda activate OCVP
 ```
 
+3. Install the source code directory, ```object_centric_video_prediction```:
+```
+pip install -e .
+```
 
-3. Download the Obj3D and MOVi-A datasets, and place them under the `datasets` directory. The folder structure should be like:
+
+4. Download the Obj3D and MOVi-A datasets, and place them under the `datasets` directory. The folder structure should be like:
 ```
 OCVP
 ├── datasets/
@@ -33,12 +38,12 @@ OCVP
  gsutil -m cp -r gs://kubric-public/tfds/movi_a/128x128/ .
  mkdir movi_a
  mv 128x128/ movi_a/128x128/
- python src/extract_movi_dataset.py
+ python scripts/extract_movi_dataset.py
  ```
 
 
 
-4. Download and extract the pretrained models, including checkpoints for the SAVi decomposition and prediction modules:
+5. Download and extract the pretrained models, including checkpoints for the SAVi decomposition and prediction modules:
 ```
 chmod +x download_pretrained.sh
 ./download_pretrained.sh

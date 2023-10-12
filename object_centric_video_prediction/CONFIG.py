@@ -12,7 +12,7 @@ CONFIG = {
     "paths": {
         "data_path": os.path.join(os.getcwd(), "datasets"),
         "experiments_path": os.path.join(os.getcwd(), "experiments"),
-        "configs_path": os.path.join(os.getcwd(), "src", "configs"),
+        "configs_path": os.path.join(os.getcwd(), "object_centric_video_prediction", "configs"),
     }
 }
 

@@ -22,13 +22,13 @@ Official implementation of:  **Object-Centric Video Prediction via Decoupling of
 
 ## Installation
 
-We refer to [docs/INSTALL.md](https://github.com/AIS-Bonn/OCVP-object-centric-video-prediction/blob/master/assets/docs/INSTALL.md) for detailed installation and preparation instructions.
+We refer to [docs/INSTALL.md](https://github.com/EwertzJN/OCVP-object-centric-video-prediction/blob/master/assets/docs/INSTALL.md) for detailed installation and preparation instructions.
 
 
 
 ## Training
 
-We refer to [docs/TRAIN.md](https://github.com/AIS-Bonn/OCVP-object-centric-video-prediction/blob/master/assets/docs/TRAIN.md) for detailed instructions for training your own Object-Centric Video Decomposition model. Additonally, we report the required training time for both the SAVi scene decomposition, as well as the OCVP-Seq predictor module.
+We refer to [docs/TRAIN.md](https://github.com/EwertzJN/OCVP-object-centric-video-prediction/blob/master/assets/docs/TRAIN.md) for detailed instructions for training your own Object-Centric Video Decomposition model. Additonally, we report the required training time for both the SAVi scene decomposition, as well as the OCVP-Seq predictor module.
 
 
 
@@ -43,22 +43,22 @@ chmod +x download_pretrained.sh
 
 ### Evaluate SAVi for Image Decomposition
 
-You can evaluate a SAVi video decomposition model using the `src/03_evaluate_savi_noMasks.py` and `src/03_evaluate_savi.py` scripts. The former measures the quality of the reconstructed frames, whereas the latter measures the fidelity of the object masks.
+You can evaluate a SAVi video decomposition model using the `scripts/03_evaluate_savi_noMasks.py` and `scripts/03_evaluate_savi.py` scripts. The former measures the quality of the reconstructed frames, whereas the latter measures the fidelity of the object masks.
 
 **Example:**
 ```
-python src/03_evaluate_savi_noMasks.py \
+python scripts/03_evaluate_savi_noMasks.py \
   -d experiments/MOViA/ \
   --checkpoint savi_movia.pth
 
-python src/03_evaluate_savi.py \
+python scripts/03_evaluate_savi.py \
   -d experiments/MOViA/ \
   --checkpoint savi_movia.pth
 ```
 
 ### Evaluate Object-Centric Video Prediction
 
-To evaluate an object-centric video predictor module (i.e. LSTM, Transformer, OCVP-Seq or OCVP-Par), you can use the `src/05_evaluate_predictor.py` script.
+To evaluate an object-centric video predictor module (i.e. LSTM, Transformer, OCVP-Seq or OCVP-Par), you can use the `scripts/05_evaluate_predictor.py` script.
 
 
 ```
@@ -79,7 +79,7 @@ arguments:
 
 **Example 1:** Reproduce LSTM predictor results on the Obj3D dataset:
 ```
-python src/05_evaluate_predictor.py \
+python scripts/05_evaluate_predictor.py \
   -d experiments/Obj3D/ \
   --savi_model savi_obj3d.pth \
   --name_predictor_experiment Predictor_LSTM \
@@ -89,7 +89,7 @@ python src/05_evaluate_predictor.py \
 
 **Example 2:** Reproduce OCVP-Seq predictor results on the MOVi-A dataset:
 ```
-python src/05_evaluate_predictor.py \
+python scripts/05_evaluate_predictor.py \
   -d experiments/MOViA/ \
   --savi_model savi_movia.pth \
   --name_predictor_experiment Predictor_OCVPSeq \
@@ -100,11 +100,11 @@ python src/05_evaluate_predictor.py \
 ### Generate Figures and Animations
 
 To generate video prediction, object prediction and segmentation figures and animations, you can use the
-`src/06_generate_figs_pred.py` script.
+`scripts/06_generate_figs_pred.py` script.
 
 **Example:**
 ```
-python src/06_generate_figs_pred.py \
+python scripts/06_generate_figs_pred.py \
   -d experiments/Obj3D/ \
   --savi_model savi_obj3d.pth \
   --name_predictor_experiment Predictor_OCVPSeq \

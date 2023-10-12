@@ -7,9 +7,9 @@ import os
 import torch
 import torchvision
 from tqdm import tqdm
-from data.MoviConvert import _MoviA
-import lib.utils as utils
-from CONFIG import CONFIG
+from object_centric_video_prediction.data.MoviConvert import _MoviA
+import object_centric_video_prediction.lib.utils as utils
+from object_centric_video_prediction.CONFIG import CONFIG
 
 
 PATH = os.path.join(CONFIG["paths"]["data_path"], "movi_a")

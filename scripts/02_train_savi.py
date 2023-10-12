@@ -7,13 +7,13 @@ import matplotlib.pyplot as plt
 matplotlib.use('Agg')  # for avoiding memory leak
 import torch
 
-from data.load_data import unwrap_batch_data
-from lib.arguments import get_directory_argument
-from lib.logger import Logger, print_
-import lib.utils as utils
-from lib.visualizations import visualize_decomp, visualize_recons
+from object_centric_video_prediction.data.load_data import unwrap_batch_data
+from object_centric_video_prediction.lib.arguments import get_directory_argument
+from object_centric_video_prediction.lib.logger import Logger, print_
+import object_centric_video_prediction.lib.utils as utils
+from object_centric_video_prediction.lib.visualizations import visualize_decomp, visualize_recons
 
-from base.baseTrainer import BaseTrainer
+from object_centric_video_prediction.base.baseTrainer import BaseTrainer
 
 
 class Trainer(BaseTrainer):

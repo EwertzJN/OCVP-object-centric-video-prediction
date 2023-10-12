@@ -4,11 +4,11 @@ its experiment parameters.
 """
 
 import os
-from lib.arguments import create_predictor_experiment_arguments
-from lib.config import Config
-from lib.logger import Logger, print_
-from lib.utils import create_directory, delete_directory, clear_cmd
-from CONFIG import CONFIG
+from object_centric_video_prediction.lib.arguments import create_predictor_experiment_arguments
+from object_centric_video_prediction.lib.config import Config
+from object_centric_video_prediction.lib.logger import Logger, print_
+from object_centric_video_prediction.lib.utils import create_directory, delete_directory, clear_cmd
+from object_centric_video_prediction.CONFIG import CONFIG
 
 
 def initialize_predictor_experiment():

@@ -2,7 +2,7 @@
 
 1. Clone and enter the repository:
 ```
-git clone git@github.com:AIS-Bonn/OCVP-object-centric-video-prediction.git
+git clone git@github.com:EwertzJN/OCVP-object-centric-video-prediction.git
 cd OCVP-object-centric-video-prediction
 ```
 

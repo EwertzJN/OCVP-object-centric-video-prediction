@@ -122,7 +122,7 @@ class Learned(nn.Module):
         """
         Return learned slot initializations
         """
-        return self.initial_slots.expand(batch_size, self.num_slots, self.slot_dim)
+        return self.initial_slots.expand(batch_size, -1, -1)
 
 
 class CoordInit(nn.Module):

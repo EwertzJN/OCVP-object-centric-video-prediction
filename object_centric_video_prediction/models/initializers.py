@@ -102,30 +102,27 @@ class LearnedRandom(nn.Module):
 
 class Learned(nn.Module):
     """
-    Learned intialization.
+    Learned initialization.
     For each slot a discrete initialization is learned via backpropagation.
     """
 
     def __init__(self, slot_dim, num_slots):
-        """ Module intializer """
+        """ Module initializer """
         super().__init__()
         self.slot_dim = slot_dim
         self.num_slots = num_slots
 
-        self.initial_slots = torch.nn.ParameterList(torch.nn.Parameter(torch.randn(1, 1, self.slot_dim)) for _ in range(self.num_slots))
+        self.initial_slots = torch.nn.Parameter(torch.randn(1, self.num_slots, self.slot_dim))
 
         with torch.no_grad():
-            limit = sqrt(6.0 / (1 + slot_dim))
-            for i in range(num_slots):
-                torch.nn.init.uniform_(self.initial_slots[i], -limit, limit)
+            torch.nn.init.uniform_(self.initial_slots, -1.0, 1.0)
         return
 
     def forward(self, batch_size, **kwargs):
         """
         Return learned slot initializations
         """
-        slot_list = [self.initial_slots[i].expand(batch_size, 1, -1) for i in range(self.num_slots)]
-        return torch.cat(slot_list, dim=1)
+        return self.initial_slots.expand(batch_size, self.num_slots, self.slot_dim)
 
 
 class CoordInit(nn.Module):

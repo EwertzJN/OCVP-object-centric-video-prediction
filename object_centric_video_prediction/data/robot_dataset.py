@@ -32,7 +32,7 @@ class RobotDataset:
         Otherwise, starting frame is always the first frame in the sequence.
     """
 
-    def __init__(self, mode, dataset_name, ep_len=30, sample_length=20, random_start=True):
+    def __init__(self, mode, dataset_name, ep_len=30, sample_length=20, random_start=True, img_size=(64, 64)):
         """
         Dataset Initializer
         """
@@ -45,6 +45,7 @@ class RobotDataset:
         self.mode = mode
         self.sample_length = sample_length
         self.random_start = random_start
+        self.img_size = img_size
 
         # Get all numbers
         self.folders = []
@@ -86,7 +87,7 @@ class RobotDataset:
         e = self.epsisodes[ep]
         for image_index in range(offset, end):
             img = Image.open(osp.join(e[image_index]))
-            img = img.resize((64, 64))
+            img = img.resize(self.img_size)
             img = transforms.ToTensor()(img)[:3]
             imgs.append(img)
         img = torch.stack(imgs, dim=0).float()

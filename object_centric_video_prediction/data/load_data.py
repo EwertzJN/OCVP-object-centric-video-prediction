@@ -55,7 +55,8 @@ def load_data(exp_params, split="train"):
         dataset = RobotDataset(
                 mode=split,
                 dataset_name=dataset_name,
-                sample_length=exp_params["training_prediction"]["sample_length"]
+                sample_length=exp_params["training_prediction"]["sample_length"],
+                img_size=exp_params["model"]["SAVi"]["resolution"]
             )
     else:
         raise NotImplementedError(

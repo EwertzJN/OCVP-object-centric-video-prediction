@@ -112,17 +112,23 @@ class Learned(nn.Module):
         self.slot_dim = slot_dim
         self.num_slots = num_slots
 
-        self.initial_slots = torch.nn.Parameter(torch.randn(1, self.num_slots, self.slot_dim))
+        self.slots_mu = nn.Parameter(torch.randn(1, num_slots, slot_dim))
+        self.slots_sigma = nn.Parameter(torch.randn(1, num_slots, slot_dim))
 
         with torch.no_grad():
-            torch.nn.init.uniform_(self.initial_slots, -1.0, 1.0)
+            limit = sqrt(6.0 / (1 + slot_dim))
+            torch.nn.init.uniform_(self.slots_mu, -limit, limit)
+            torch.nn.init.uniform_(self.slots_sigma, -limit, limit)
         return
 
     def forward(self, batch_size, **kwargs):
         """
         Return learned slot initializations
         """
-        return self.initial_slots.expand(batch_size, -1, -1)
+        mu = self.slots_mu.expand(batch_size, -1, -1)
+        sigma = self.slots_sigma.expand(batch_size, -1, -1)
+        slots = mu + sigma * torch.randn(mu.shape, device=self.slots_mu.device)
+        return slots
 
 
 class CoordInit(nn.Module):

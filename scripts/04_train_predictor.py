@@ -6,6 +6,11 @@ import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.use('Agg')  # for avoiding memory leak
 import torch
+# to avoid multiprocessing error, see: https://stackoverflow.com/questions/74058016/how-do-you-run-multiple-aws-batch-jobs-with-multiprocessing-mp-manager-witho/75216829#75216829
+import multiprocessing
+import multiprocessing.util
+multiprocessing.util.abstract_sockets_supported = False
+mgr = multiprocessing.Manager()
 
 from object_centric_video_prediction.data.load_data import unwrap_batch_data
 from object_centric_video_prediction.lib.arguments import get_predictor_training_arguments

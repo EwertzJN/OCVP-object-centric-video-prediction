@@ -1,3 +1,5 @@
+import cv2
+import imageio
 import numpy as np
 from torchvision import transforms
 import glob
@@ -8,8 +10,28 @@ from PIL import Image
 
 from ..CONFIG import CONFIG
 
-PATH = CONFIG["paths"]["data_path"]
+PATH = "/home/nfs/inf6/data/datasets/EwertzData/robot-datasets"
 
+def get_bboxes(seg, max_obj):
+    bboxes = []
+
+    for seg_value in np.unique(seg):
+
+        segmentation = np.where(seg == seg_value)
+
+        # Bounding Box
+        if len(segmentation) != 0 and len(segmentation[1]) != 0 and len(segmentation[0]) != 0:
+            x_min = int(np.min(segmentation[1]))
+            x_max = int(np.max(segmentation[1]))
+            y_min = int(np.min(segmentation[0]))
+            y_max = int(np.max(segmentation[0]))
+
+            bboxes.append(torch.tensor([x_min, y_min, x_max, y_max]) / (seg.shape[0]-1))
+
+    while len(bboxes) < max_obj:
+        bboxes.append(torch.ones(4) * -1)
+
+    return torch.stack(bboxes)
 
 class RobotDataset:
     """
@@ -32,7 +54,7 @@ class RobotDataset:
         Otherwise, starting frame is always the first frame in the sequence.
     """
 
-    def __init__(self, mode, dataset_name, ep_len=30, sample_length=20, random_start=True, img_size=(64, 64)):
+    def __init__(self, mode, dataset_name, ep_len=30, sample_length=20, random_start=True, img_size=(64, 64), num_slots=None):
         """
         Dataset Initializer
         """
@@ -46,6 +68,7 @@ class RobotDataset:
         self.sample_length = sample_length
         self.random_start = random_start
         self.img_size = img_size
+        self.num_slots = num_slots
 
         # Get all numbers
         self.folders = []
@@ -67,7 +90,7 @@ class RobotDataset:
         # loading images from data directories and assembling then into episodes
         for f in self.folders:
             dir_name = os.path.join(self.root, str(f))
-            paths = list(glob.glob(osp.join(dir_name, '*.png')))
+            paths = list(glob.glob(osp.join(dir_name, '[!{seg}]*.png')))
             get_num = lambda x: int(osp.splitext(osp.basename(x))[0])
             paths.sort(key=get_num)
             self.epsisodes.append(paths)
@@ -78,6 +101,7 @@ class RobotDataset:
         Fetching a sequence from the dataset
         """
         imgs = []
+        bboxes = []
 
         # Implement continuous indexing
         ep = index // self.seq_per_episode
@@ -90,13 +114,18 @@ class RobotDataset:
             img = img.resize(self.img_size)
             img = transforms.ToTensor()(img)[:3]
             imgs.append(img)
+
+            seg = imageio.imread("/" + osp.join(*(e[image_index].split("/")[:-1] + [("seg_" + e[image_index].split("/")[-1])])))
+            bboxes.append(get_bboxes(seg, self.num_slots))
+
         img = torch.stack(imgs, dim=0).float()
+        bbox = torch.stack(bboxes, dim=0)
 
         # load actions
         actions = torch.from_numpy(np.load("/" + osp.join(*(self.epsisodes[ep][0].split("/")[:-1] + ["actions.npy"])))[offset:end])
 
         targets = img
-        all_reps = {"videos": img}
+        all_reps = {"videos": img, "bbox_coords": bbox}
         return img, targets, actions, all_reps
 
     def __len__(self):

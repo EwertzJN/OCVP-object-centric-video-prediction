@@ -56,7 +56,8 @@ def load_data(exp_params, split="train"):
                 mode=split,
                 dataset_name=dataset_name,
                 sample_length=exp_params["training_prediction"]["sample_length"],
-                img_size=exp_params["model"]["SAVi"]["resolution"]
+                img_size=exp_params["model"]["SAVi"]["resolution"],
+                num_slots=exp_params["model"]["SAVi"]["num_slots"]
             )
     else:
         raise NotImplementedError(
@@ -105,7 +106,8 @@ def unwrap_batch_data(exp_params, batch_data):
         initializer_kwargs["com_coords"] = all_reps["com_coords"]
         initializer_kwargs["bbox_coords"] = all_reps["bbox_coords"]
     elif "Robot-dataset" in exp_params["dataset"]["dataset_name"]:
-      videos, targets, condition, _ = batch_data
+        videos, targets, condition, all_reps = batch_data
+        initializer_kwargs["bbox_coords"] = all_reps["bbox_coords"]
     else:
         dataset_name = exp_params["dataset"]["dataset_name"]
         raise NotImplementedError(f"Dataset {dataset_name} is not supported...")

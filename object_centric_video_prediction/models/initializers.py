@@ -187,7 +187,7 @@ class CoordInit(nn.Module):
         if num_coords < self.num_slots:
             remaining_masks = self.num_slots - num_coords
             pad_zeros = -1 * torch.ones((coords.shape[0], remaining_masks, in_feats), device=device)
-            coords = torch.cat([coords, pad_zeros], dim=2)
+            coords = torch.cat([coords, pad_zeros], dim=1)
 
         slots = self.coord_encoder(coords)
         return slots

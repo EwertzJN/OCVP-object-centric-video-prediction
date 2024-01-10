@@ -214,7 +214,7 @@ class SAVi(nn.Module):
         masks_history = torch.stack(masks_history, dim=1)
         return slot_history, recons_history, ind_recons_history, masks_history
 
-    def predict_slot_history(self, input, num_imgs=10, nonterminals=None, **kwargs):
+    def predict_slot_history(self, input, num_imgs=10, prior_slots=None, step_offset=0, **kwargs):
         """
         Forward pass through the model (without decoding)
 
@@ -224,8 +224,8 @@ class SAVi(nn.Module):
             Images to process with SAVi. Shape is (B, NumImgs, C, H, W)
         num_imgs: int
             Number of images to recursively encode into object slots.
-        input: torch Tensor
-            Terminal flags indicating whether to start SAVi encoding over. Shape is (B, NumImgs, 1)
+        predicted_slots: torch Tensor
+            Predicted slots from previous time step
 
         Returns:
         --------
@@ -233,18 +233,16 @@ class SAVi(nn.Module):
             Object slots encoded at every time step. Shape is (B, num_imgs, num_slots, slot_dim)
         """
         slot_history = []
-        if nonterminals is not None:
-            nonterminals = nonterminals.expand(-1, -1, self.num_slots).unsqueeze(3)
 
         # initializing slots by randomly sampling them or encoding some representations (e.g. BBox)
-        predicted_slots = self.initializer(batch_size=input.shape[0], **kwargs)
+        predicted_slots = self.initializer(batch_size=input.shape[0], **kwargs) if prior_slots is None else self.predictor(prior_slots)
 
         # recursively mapping video frames into object slots
         for t in range(num_imgs):
             imgs = input[:, t]
             img_feats = self.encode(imgs)
-            slots = self.apply_attention(img_feats, predicted_slots=predicted_slots, step=t)
-            predicted_slots = self.predictor(slots) if nonterminals is None else self.predictor(slots) * nonterminals[:, t] + self.initializer(batch_size=input.shape[0], **kwargs) * (1 - nonterminals[:, t])
+            slots = self.apply_attention(img_feats, predicted_slots=predicted_slots, step=t+step_offset)
+            predicted_slots = self.predictor(slots)
             slot_history.append(slots)
 
         slot_history = torch.stack(slot_history, dim=1)

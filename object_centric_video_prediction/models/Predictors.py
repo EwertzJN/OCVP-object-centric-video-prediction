@@ -206,6 +206,19 @@ class PredictorWrapper(nn.Module):
             inputs = inputs[:, extra_inputs:]
         return inputs
 
+    def predict_slots(self, steps, slot_history, conditions):
+        predictor_input = self._update_buffer_size(slot_history.clone())
+
+        pred_slots = []
+        for t in range(steps):
+            cur_preds = self.predictor(predictor_input, conditions[:, t].clone())[:, -1]  # get predicted slots from step
+            next_input = cur_preds
+            predictor_input = torch.cat([predictor_input, next_input.unsqueeze(1)], dim=1)
+            predictor_input = self._update_buffer_size(predictor_input)
+            pred_slots.append(cur_preds)
+
+        return torch.stack(pred_slots, dim=1)
+
 
 class LSTMPredictor(nn.Module):
     """

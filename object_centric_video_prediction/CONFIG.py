@@ -35,6 +35,7 @@ INITIALIZERS = ["Random", "LearnedRandom", "Learned", "Masks", "CoM", "BBox"]
 DEFAULTS = {
     "dataset": {
         "dataset_name": "OBJ3D",
+        "ep_len": 30,
         "shuffle_train": True,
         "shuffle_eval": False,
         "use_segmentation": True,

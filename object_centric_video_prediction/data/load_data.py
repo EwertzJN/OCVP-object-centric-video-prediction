@@ -56,7 +56,8 @@ def load_data(exp_params, split="train"):
                 mode=split,
                 dataset_name=dataset_name,
                 sample_length=exp_params["training_prediction"]["sample_length"],
-                img_size=exp_params["model"]["SAVi"]["resolution"]
+                img_size=exp_params["model"]["SAVi"]["resolution"],
+                ep_len=exp_params["dataset"]["ep_len"]
             )
     else:
         raise NotImplementedError(

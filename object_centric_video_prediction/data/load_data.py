@@ -4,7 +4,7 @@ Methods for loading specific datasets, fitting data loaders and other
 
 # from torchvision import datasets
 from torch.utils.data import DataLoader
-from . import OBJ3D, MOVI, RobotDataset
+from . import OBJ3D, MOVI, RobotDataset, RobotPropertyDataset
 from ..CONFIG import CONFIG, DATASETS
 
 
@@ -50,6 +50,14 @@ def load_data(exp_params, split="train"):
                 img_size=(64, 64),
                 random_start=exp_params["dataset"].get("random_start", False),
                 slot_initializer=exp_params["model"]["SAVi"].get("initializer", "LearnedRandom")
+            )
+    elif "Properties" in dataset_name:
+        dataset = RobotPropertyDataset(
+                mode=split,
+                dataset_name=dataset_name,
+                sample_length=exp_params["training_prediction"]["sample_length"],
+                img_size=exp_params["model"]["SAVi"]["resolution"],
+                ep_len=exp_params["dataset"]["ep_len"]
             )
     elif "Robot-dataset" in dataset_name:
         dataset = RobotDataset(

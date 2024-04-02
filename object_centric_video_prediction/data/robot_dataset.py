@@ -107,4 +107,40 @@ class RobotDataset:
         return length
 
 
+class RobotPropertyDataset(RobotDataset):
+    PROPERTIES = {
+        "color": {
+            "type": "continuous",
+            "num_values": 3
+        },
+        "positions": {
+            "type": "continuous",
+            "num_values": 3
+        }
+    }
+
+    def __init__(self, mode, dataset_name, ep_len=30, sample_length=20, random_start=True, img_size=(64, 64)):
+        super(RobotPropertyDataset, self).__init__(mode, dataset_name, ep_len, sample_length, random_start, img_size)
+
+    def __getitem__(self, index):
+        """
+        Fetching a sequence from the dataset
+        """
+        img, targets, actions, all_reps = super().__getitem__(index)
+
+        # Implement continuous indexing
+        ep = index // self.seq_per_episode
+        offset = index % self.seq_per_episode
+        end = offset + self.sample_length
+
+        positions = torch.from_numpy(np.load("/" + osp.join(*(self.epsisodes[ep][0].split("/")[:-1] + ["positions.npy"])))[offset:end])
+        colors = torch.from_numpy(np.load("/" + osp.join(*(self.epsisodes[ep][0].split("/")[:-1] + ["colors.npy"])))[offset:end])
+
+        meta = {
+            "color": colors[:, 1:],
+            "positions": 10 * positions[:, 1:]
+        }
+
+        return img, targets, meta, all_reps
+
 #

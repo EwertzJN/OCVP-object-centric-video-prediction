@@ -5,6 +5,7 @@ Methods for loading specific datasets, fitting data loaders and other
 # from torchvision import datasets
 from torch.utils.data import DataLoader
 from . import OBJ3D, MOVI, RobotDataset, RobotPropertyDataset
+from .causalworld_dataset import CausalworldDataset, VariableSeqLengthBatchSampler
 from ..CONFIG import CONFIG, DATASETS
 
 
@@ -67,6 +68,8 @@ def load_data(exp_params, split="train"):
                 img_size=exp_params["model"]["SAVi"]["resolution"],
                 ep_len=exp_params["dataset"]["ep_len"]
             )
+    elif dataset_name == "Causalworld":
+        dataset = CausalworldDataset(mode=split)
     else:
         raise NotImplementedError(
                 f"""ERROR! Dataset'{dataset_name}' is not available.
@@ -76,7 +79,7 @@ def load_data(exp_params, split="train"):
     return dataset
 
 
-def build_data_loader(dataset, batch_size=8, shuffle=False):
+def build_data_loader(dataset, sample_length=10, batch_size=8, shuffle=False):
     """
     Fitting a data loader for the given dataset
 
@@ -89,13 +92,19 @@ def build_data_loader(dataset, batch_size=8, shuffle=False):
     shuffle: boolean
         If True, mini-batches are sampled randomly from the database
     """
-
-    data_loader = DataLoader(
-            dataset=dataset,
-            batch_size=batch_size,
-            shuffle=shuffle,
-            num_workers=CONFIG["num_workers"]
-        )
+    if type(dataset) == CausalworldDataset:
+        data_loader = DataLoader(
+                dataset,
+                batch_sampler=VariableSeqLengthBatchSampler(dataset, batch_size=batch_size, max_sample_length=sample_length, shuffle=shuffle),
+                num_workers=CONFIG["num_workers"]
+           )
+    else:
+        data_loader = DataLoader(
+                dataset=dataset,
+                batch_size=batch_size,
+                shuffle=shuffle,
+                num_workers=CONFIG["num_workers"]
+            )
 
     return data_loader
 
@@ -113,7 +122,7 @@ def unwrap_batch_data(exp_params, batch_data):
         initializer_kwargs["instance_masks"] = all_reps["masks"]
         initializer_kwargs["com_coords"] = all_reps["com_coords"]
         initializer_kwargs["bbox_coords"] = all_reps["bbox_coords"]
-    elif "Robot-dataset" in exp_params["dataset"]["dataset_name"]:
+    elif "Robot-dataset" in exp_params["dataset"]["dataset_name"] or exp_params["dataset"]["dataset_name"] == "Causalworld":
       videos, targets, condition, _ = batch_data
     else:
         dataset_name = exp_params["dataset"]["dataset_name"]

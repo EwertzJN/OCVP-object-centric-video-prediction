@@ -72,11 +72,13 @@ class BaseTrainer:
         print_(f"Examples in validation set: {len(valid_set)}")
         self.train_loader = datalib.build_data_loader(
                 dataset=train_set,
+                sample_length=self.exp_params["training_prediction"]["sample_length"],
                 batch_size=batch_size,
                 shuffle=shuffle_train
             )
         self.valid_loader = datalib.build_data_loader(
                 dataset=valid_set,
+                sample_length=self.exp_params["training_prediction"]["sample_length"],
                 batch_size=batch_size,
                 shuffle=shuffle_eval
             )

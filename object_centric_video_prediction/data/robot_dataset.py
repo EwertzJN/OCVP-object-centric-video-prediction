@@ -16,8 +16,7 @@ class RobotDataset:
     DataClass for datasets generated with the visual-block-builder package.
 
     During training, we sample a random subset of frames in the episode. At inference time,
-    we always start from the first frame, e.g., when the ball moves towards the objects, and
-    before any collision happens.
+    we always start from the first frame.
 
     Args:
     -----

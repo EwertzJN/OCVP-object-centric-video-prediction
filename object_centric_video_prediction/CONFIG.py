@@ -29,7 +29,7 @@ METRICS = [
         "mse", "psnr", "ssim", "lpips"      # video predicition metrics
     ]
 MODELS = ["SAVi"]
-PREDICTORS = ["LSTM", "Transformer", "OCVP-Seq", "OCVP-Par", "CondTransformer", "CondOCVP-Seq"]
+PREDICTORS = ["LSTM", "Transformer", "OCVP-Seq", "OCVP-Par", "CondTransformer", "CondOCVP-Seq", "ActionConditionalTransformer"]
 INITIALIZERS = ["Random", "LearnedRandom", "Learned", "Masks", "CoM", "BBox"]
 
 DEFAULTS = {

@@ -334,4 +334,57 @@ class TransformerBlock(nn.Module):
         return z
 
 
+class TransformerDecoderBlock(nn.Module):
+    """
+    Tranformer decoder block with cross-attention only
+    """
+
+    def __init__(self, embed_dim, kv_dim, num_heads, mlp_size):
+        """
+        Module initializer
+        """
+        super().__init__()
+
+        # Cross Attention
+        self.ln_cross_att_q = nn.LayerNorm(embed_dim, eps=1e-6)
+        self.ln_cross_att_kv = nn.LayerNorm(kv_dim, eps=1e-6)
+        self.cross_attn = nn.MultiheadAttention(
+                embed_dim=embed_dim,
+                num_heads=num_heads,
+                kdim=kv_dim,
+                vdim=kv_dim,
+                batch_first=True
+            )
+
+        # MLP
+        self.mlp = nn.Sequential(
+            nn.Linear(embed_dim, mlp_size),
+            nn.ReLU(),
+            nn.Linear(mlp_size, embed_dim),
+        )
+        self.ln_mlp = nn.LayerNorm(embed_dim, eps=1e-6)
+
+        return
+
+    def forward(self, queries, feats):
+        """
+        Forward pass through transformer encoder block
+        """
+        assert queries.ndim == 3
+        B, L, _ = queries.shape
+
+        # Cross-attention.
+        query_embs = self.ln_cross_att_q(queries)
+        feats = self.ln_cross_att_kv(feats)
+        z, _ = self.cross_attn(query_embs, feats, feats, need_weights=False)
+        z = z + queries
+
+        # MLP
+        out = self.ln_mlp(z)
+        out = self.mlp(out)
+        out = out + z
+
+        return out
+
+
 #

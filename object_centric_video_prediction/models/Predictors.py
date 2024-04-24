@@ -5,6 +5,8 @@ Implementation of predictor modules and wrapper functionalities
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
+from .attention import TransformerDecoderBlock
 from ..lib.logger import print_
 
 from .model_blocks import PositionalEncoding
@@ -1130,6 +1132,87 @@ class OCVPParLayer(nn.TransformerEncoderLayer):
 
         y = self.dropout1(x_obj + x_time)
         return y
+
+
+class ActionConditionalTransformerPredictor(nn.Module):
+    """
+    Transformer module that predicts future object slots conditioned on past object slots and
+    an action
+    """
+
+    def __init__(self, num_slots, slot_dim, num_imgs, cond_dim, token_dim=128, hidden_dim=256,
+                 num_layers=2, n_heads=4, residual=False, input_buffer_size=5):
+        """
+        Module initalizer
+        """
+        super().__init__()
+
+        # main predictor parameters
+        self.num_slots = num_slots
+        self.num_imgs = num_imgs
+        self.slot_dim = slot_dim
+        self.cond_dim = cond_dim
+        self.token_dim = token_dim
+        self.hidden_dim = hidden_dim
+        self.num_layers = num_layers
+        self.n_heads = n_heads
+        self.residual = residual
+        self.input_buffer_size = input_buffer_size
+
+        # action fusion modules
+        self.action_encoder = nn.Linear(self.cond_dim, token_dim)
+        self.cross_attentions = nn.Sequential(
+            *[TransformerDecoderBlock(
+                embed_dim=self.token_dim,
+                kv_dim=self.token_dim,
+                num_heads=self.n_heads,
+                mlp_size=self.hidden_dim,
+                ) for _ in range(self.num_layers)]
+            )
+
+        # slot predictor module
+        self.mlp_in = nn.Linear(self.slot_dim, self.token_dim)
+        self.mlp_out = nn.Linear(self.token_dim, self.slot_dim)
+        self.transformer_encoders = nn.Sequential(
+            *[OCVPSeqLayer(
+                    token_dim=token_dim,
+                    hidden_dim=hidden_dim,
+                    n_heads=n_heads
+                ) for _ in range(num_layers)]
+            )
+
+        # custom temporal encoding. All slots from the same time step share the same encoding
+        self.pe = PositionalEncoding(d_model=self.token_dim, max_len=input_buffer_size)
+        return
+
+    def forward(self, slots, action, **kwargs):
+        """
+        Forward pass through action-conditional predictor model
+        """
+        B, num_imgs, num_slots, slot_dim = slots.shape
+
+        # projecting slots into tokens, and applying positional encoding
+        token_input = self.mlp_in(slots)
+        time_encoded_input = self.pe(
+            x=token_input,
+            batch_size=B,
+            num_slots=num_slots
+        )
+
+        # embed action
+        action_token = self.action_encoder(action)
+
+        # feeding through transformer blocks
+        token_output = time_encoded_input
+        for cross_attention, encoder in zip(self.cross_attentions, self.transformer_encoders):
+            token_output = cross_attention(queries=token_output.reshape(B, num_imgs * num_slots, -1), feats=action_token.unsqueeze(1)).reshape(B, num_imgs, num_slots, -1)
+            token_output = encoder(token_output)
+
+        # mapping back to the slot dimension
+        output = self.mlp_out(token_output)
+        output = output + slots if self.residual else output
+
+        return output
 
 
 #

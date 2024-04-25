@@ -1160,6 +1160,8 @@ class ActionConditionalTransformerPredictor(nn.Module):
         self.input_buffer_size = input_buffer_size
 
         # action fusion modules
+        self.no_action_token = nn.Parameter(torch.Tensor(1, self.token_dim))
+        nn.init.xavier_uniform_(self.no_action_token)
         self.action_encoder = nn.Linear(self.cond_dim, token_dim)
         self.cross_attentions = nn.Sequential(
             *[TransformerDecoderBlock(
@@ -1201,11 +1203,13 @@ class ActionConditionalTransformerPredictor(nn.Module):
 
         # embed action
         action_token = self.action_encoder(action)
+        no_action_token = self.no_action_token.expand(B, -1)
+        action_tokens = torch.stack((action_token, no_action_token), dim=1)
 
         # feeding through transformer blocks
         token_output = time_encoded_input
         for cross_attention, encoder in zip(self.cross_attentions, self.transformer_encoders):
-            token_output = cross_attention(queries=token_output.reshape(B, num_imgs * num_slots, -1), feats=action_token.unsqueeze(1)).reshape(B, num_imgs, num_slots, -1)
+            token_output = cross_attention(queries=token_output.reshape(B, num_imgs * num_slots, -1), feats=action_tokens).reshape(B, num_imgs, num_slots, -1)
             token_output = encoder(token_output)
 
         # mapping back to the slot dimension

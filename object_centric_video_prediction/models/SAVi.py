@@ -166,7 +166,7 @@ class SAVi(nn.Module):
             torch.nn.init.uniform_(self.slot_attention.slots_sigma, -limit, limit)
         return
 
-    def forward(self, input, num_imgs=10, **kwargs):
+    def forward(self, input, num_imgs=10, prior_slots=None, step_offset=0, reconstruct=True, **kwargs):
         """
         Forward pass through the model
 
@@ -194,47 +194,6 @@ class SAVi(nn.Module):
         masks_history = []
 
         # initializing slots by randomly sampling them or encoding some representations (e.g. BBox)
-        predicted_slots = self.initializer(batch_size=input.shape[0], **kwargs)
-
-        # recursively mapping video frames into object slots
-        for t in range(num_imgs):
-            imgs = input[:, t]
-            img_feats = self.encode(imgs)
-            slots = self.apply_attention(img_feats, predicted_slots=predicted_slots, step=t)
-            recon_combined, (recons, masks) = self.decode(slots)
-            predicted_slots = self.predictor(slots)
-            slot_history.append(slots)
-            reconstruction_history.append(recon_combined)
-            individual_recons_history.append(recons)
-            masks_history.append(masks)
-
-        slot_history = torch.stack(slot_history, dim=1)
-        recons_history = torch.stack(reconstruction_history, dim=1)
-        ind_recons_history = torch.stack(individual_recons_history, dim=1)
-        masks_history = torch.stack(masks_history, dim=1)
-        return slot_history, recons_history, ind_recons_history, masks_history
-
-    def predict_slot_history(self, input, num_imgs=10, prior_slots=None, step_offset=0, **kwargs):
-        """
-        Forward pass through the model (without decoding)
-
-        Args:
-        -----
-        input: torch Tensor
-            Images to process with SAVi. Shape is (B, NumImgs, C, H, W)
-        num_imgs: int
-            Number of images to recursively encode into object slots.
-        predicted_slots: torch Tensor
-            Predicted slots from previous time step
-
-        Returns:
-        --------
-        slot_history: torch Tensor
-            Object slots encoded at every time step. Shape is (B, num_imgs, num_slots, slot_dim)
-        """
-        slot_history = []
-
-        # initializing slots by randomly sampling them or encoding some representations (e.g. BBox)
         predicted_slots = self.initializer(batch_size=input.shape[0], **kwargs) if prior_slots is None else self.predictor(prior_slots)
 
         # recursively mapping video frames into object slots
@@ -244,9 +203,18 @@ class SAVi(nn.Module):
             slots = self.apply_attention(img_feats, predicted_slots=predicted_slots, step=t+step_offset)
             predicted_slots = self.predictor(slots)
             slot_history.append(slots)
+            if reconstruct:
+                recon_combined, (recons, masks) = self.decode(slots)
+                reconstruction_history.append(recon_combined)
+                individual_recons_history.append(recons)
+                masks_history.append(masks)
 
         slot_history = torch.stack(slot_history, dim=1)
-        return slot_history
+        if reconstruct:
+            reconstruction_history = torch.stack(reconstruction_history, dim=1)
+            individual_recons_history = torch.stack(individual_recons_history, dim=1)
+            masks_history = torch.stack(masks_history, dim=1)
+        return (slot_history, reconstruction_history, individual_recons_history, masks_history) if reconstruct else slot_history
 
     def encode(self, input):
         """

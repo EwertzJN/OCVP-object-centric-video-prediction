@@ -78,7 +78,7 @@ class PredictorWrapper(nn.Module):
             pred_slots = self.forward_lstm(slot_history)
         elif "Transformer" in self.predictor_name or "OCVP" in self.predictor_name:
             if "Cond" in self.predictor_name:
-                pred_slots = self.forward_cond_transformer(slot_history, condition)
+                pred_slots = self.forward_action_transformer(slot_history, condition)
             else:
                 pred_slots = self.forward_transformer(slot_history)
         else:
@@ -153,9 +153,9 @@ class PredictorWrapper(nn.Module):
         pred_slots = torch.stack(pred_slots, dim=1)  # (B, num_preds, num_slots, slot_dim)
         return pred_slots
 
-    def forward_cond_transformer(self, slot_history, condition):
+    def forward_action_transformer(self, slot_history, actions):
         """
-        Forward pass through any conditional Transformer-based predictor module
+        Forward pass through Transformer-based predictor module conditioned on actions
 
         Args:
         -----
@@ -163,8 +163,8 @@ class PredictorWrapper(nn.Module):
             Decomposed slots form the seed and predicted images.
             Shape is (B, num_frames, num_slots, slot_dim)
         condition: torch Tensor
-            One condition for each frame on basis of which the predictor should make its prediction.
-            Shape is (B, num_frames, cond_dim)
+            One action for each frame on basis of which the predictor should make its prediction.
+            Shape is (B, num_frames, action_dim)
 
         Returns:
         --------
@@ -176,7 +176,7 @@ class PredictorWrapper(nn.Module):
 
         pred_slots = []
         for t in range(self.num_preds):
-            cur_preds = self.predictor(predictor_input, condition[:, self.num_context-1+t].clone())[:, -1]  # get predicted slots from step
+            cur_preds = self.predictor(predictor_input, actions[:, :self.num_context-1+t].clone())[:, -1]  # get predicted slots from step
             next_input = slot_history[:, self.num_context+t] if self.teacher_force else cur_preds
             predictor_input = torch.cat([predictor_input, next_input.unsqueeze(1)], dim=1)
             predictor_input = self._update_buffer_size(predictor_input)
@@ -208,12 +208,13 @@ class PredictorWrapper(nn.Module):
             inputs = inputs[:, extra_inputs:]
         return inputs
 
-    def predict_slots(self, steps, slot_history, conditions):
+    def predict_slots(self, steps, slot_history, actions):
         predictor_input = self._update_buffer_size(slot_history.clone())
+        actions = self._update_buffer_size(actions.clone())
 
         pred_slots = []
-        for t in range(steps):
-            cur_preds = self.predictor(predictor_input, conditions[:, t].clone())[:, -1]  # get predicted slots from step
+        for t in range(predictor_input.shape[1], predictor_input.shape[1] + steps):
+            cur_preds = self.predictor(predictor_input, actions[:, :t].clone())[:, -1]  # get predicted slots from step
             next_input = cur_preds
             predictor_input = torch.cat([predictor_input, next_input.unsqueeze(1)], dim=1)
             predictor_input = self._update_buffer_size(predictor_input)
@@ -1159,18 +1160,7 @@ class ActionConditionalTransformerPredictor(nn.Module):
         self.residual = residual
         self.input_buffer_size = input_buffer_size
 
-        # action fusion modules
-        self.no_action_token = nn.Parameter(torch.Tensor(1, self.token_dim))
-        nn.init.xavier_uniform_(self.no_action_token)
         self.action_encoder = nn.Linear(self.cond_dim, token_dim)
-        self.cross_attentions = nn.Sequential(
-            *[TransformerDecoderBlock(
-                embed_dim=self.token_dim,
-                kv_dim=self.token_dim,
-                num_heads=self.n_heads,
-                mlp_size=self.hidden_dim,
-                ) for _ in range(self.num_layers)]
-            )
 
         # slot predictor module
         self.mlp_in = nn.Linear(self.slot_dim, self.token_dim)
@@ -1187,33 +1177,31 @@ class ActionConditionalTransformerPredictor(nn.Module):
         self.pe = PositionalEncoding(d_model=self.token_dim, max_len=input_buffer_size)
         return
 
-    def forward(self, slots, action, **kwargs):
+    def forward(self, slots, actions, **kwargs):
         """
         Forward pass through action-conditional predictor model
         """
         B, num_imgs, num_slots, slot_dim = slots.shape
 
-        # projecting slots into tokens, and applying positional encoding
+        # embed actions
+        action_embeddings = self.action_encoder(actions)
+
+        # projecting slots into tokens, concatenating them with actions, and applying positional encoding
         token_input = self.mlp_in(slots)
+        token_input = torch.cat((token_input, action_embeddings.unsqueeze(2)), dim=2)
         time_encoded_input = self.pe(
             x=token_input,
             batch_size=B,
-            num_slots=num_slots
+            num_slots=num_slots+1
         )
-
-        # embed action
-        action_token = self.action_encoder(action)
-        no_action_token = self.no_action_token.expand(B, -1)
-        action_tokens = torch.stack((action_token, no_action_token), dim=1)
 
         # feeding through transformer blocks
         token_output = time_encoded_input
-        for cross_attention, encoder in zip(self.cross_attentions, self.transformer_encoders):
-            token_output = cross_attention(queries=token_output.reshape(B, num_imgs * num_slots, -1), feats=action_tokens).reshape(B, num_imgs, num_slots, -1)
+        for encoder in self.transformer_encoders:
             token_output = encoder(token_output)
 
         # mapping back to the slot dimension
-        output = self.mlp_out(token_output)
+        output = self.mlp_out(token_output[:, :, :-1])
         output = output + slots if self.residual else output
 
         return output

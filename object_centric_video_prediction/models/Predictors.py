@@ -210,11 +210,11 @@ class PredictorWrapper(nn.Module):
 
     def predict_slots(self, steps, slot_history, actions):
         predictor_input = self._update_buffer_size(slot_history.clone())
-        actions = self._update_buffer_size(actions.clone())
 
         pred_slots = []
         for t in range(predictor_input.shape[1], predictor_input.shape[1] + steps):
-            cur_preds = self.predictor(predictor_input, actions[:, :t].clone())[:, -1]  # get predicted slots from step
+            input_actions = self._update_buffer_size(actions.clone()[:, :t])
+            cur_preds = self.predictor(predictor_input, input_actions)[:, -1]  # get predicted slots from step
             next_input = cur_preds
             predictor_input = torch.cat([predictor_input, next_input.unsqueeze(1)], dim=1)
             predictor_input = self._update_buffer_size(predictor_input)

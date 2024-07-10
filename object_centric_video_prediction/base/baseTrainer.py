@@ -4,6 +4,8 @@ Basically it removes the scaffolding that is repeat across all training modules
 """
 
 import os
+
+import wandb
 from tqdm import tqdm
 import torch
 
@@ -52,6 +54,9 @@ class BaseTrainer:
         utils.create_directory(self.models_path)
         tboard_logs = os.path.join(self.exp_path, "tboard_logs", f"tboard_{utils.timestamp()}")
         utils.create_directory(tboard_logs)
+        if self.exp_params['wandb']:
+            wandb.tensorboard.patch(root_logdir=tboard_logs)
+            wandb.init(project='ocvp', config=self.exp_params, sync_tensorboard=True)
 
         self.training_losses = []
         self.validation_losses = []

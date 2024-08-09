@@ -4,7 +4,7 @@ Methods for loading specific datasets, fitting data loaders and other
 
 # from torchvision import datasets
 from torch.utils.data import DataLoader
-from . import OBJ3D, MOVI, RobotDataset, RobotPropertyDataset
+from . import OBJ3D, MOVI, RobotDataset, RobotPropertyDataset, DMControlDataset, MetaWorldDataset
 from .causalworld_dataset import CausalworldDataset, VariableSeqLengthBatchSampler
 from ..CONFIG import CONFIG, DATASETS
 
@@ -70,6 +70,22 @@ def load_data(exp_params, split="train"):
             )
     elif dataset_name == "Causalworld":
         dataset = CausalworldDataset(mode=split)
+    elif dataset_name == "cartpole_swingup" or dataset_name == "cheetah_run" or dataset_name == "quadruped_walk" or dataset_name == "reacher_easy":
+        dataset = DMControlDataset(
+                mode=split,
+                dataset_name=dataset_name,
+                sample_length=exp_params["training_prediction"]["sample_length"],
+                img_size=exp_params["model"]["SAVi"]["resolution"],
+                ep_len=exp_params["dataset"]["ep_len"]
+            )
+    elif dataset_name == "box_close" or dataset_name == "button_press" or dataset_name == "drawer_close" or dataset_name == "hammer":
+        dataset = MetaWorldDataset(
+                mode=split,
+                dataset_name=dataset_name,
+                sample_length=exp_params["training_prediction"]["sample_length"],
+                img_size=exp_params["model"]["SAVi"]["resolution"],
+                ep_len=exp_params["dataset"]["ep_len"]
+            )
     else:
         raise NotImplementedError(
                 f"""ERROR! Dataset'{dataset_name}' is not available.
@@ -122,7 +138,9 @@ def unwrap_batch_data(exp_params, batch_data):
         initializer_kwargs["instance_masks"] = all_reps["masks"]
         initializer_kwargs["com_coords"] = all_reps["com_coords"]
         initializer_kwargs["bbox_coords"] = all_reps["bbox_coords"]
-    elif "Robot-dataset" in exp_params["dataset"]["dataset_name"] or exp_params["dataset"]["dataset_name"] == "Causalworld":
+    elif "Robot-dataset" in exp_params["dataset"]["dataset_name"] or exp_params["dataset"]["dataset_name"] == "Causalworld"\
+        or exp_params["dataset"]["dataset_name"] == "cartpole_swingup" or exp_params["dataset"]["dataset_name"] == "cheetah_run" or exp_params["dataset"]["dataset_name"] == "quadruped_walk" or exp_params["dataset"]["dataset_name"] == "reacher_easy"\
+        or exp_params["dataset"]["dataset_name"] == "box_close" or exp_params["dataset"]["dataset_name"] == "button_press" or exp_params["dataset"]["dataset_name"] == "drawer_close" or exp_params["dataset"]["dataset_name"] == "hammer":
       videos, targets, condition, _ = batch_data
     else:
         dataset_name = exp_params["dataset"]["dataset_name"]

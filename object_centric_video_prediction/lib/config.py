@@ -52,7 +52,7 @@ class Config(dict):
         self["_general"]["last_loaded"] = timestamp()
         exp_config = os.path.join(exp_path, "experiment_params.json")
         with open(exp_config, "w") as file:
-            json.dump(self, file)
+            json.dump(self, file, indent=4)
         return
 
     def load_exp_config_file(self, exp_path=None):

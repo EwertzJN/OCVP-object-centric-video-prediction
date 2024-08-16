@@ -70,7 +70,7 @@ def load_data(exp_params, split="train"):
             )
     elif dataset_name == "Causalworld":
         dataset = CausalworldDataset(mode=split)
-    elif dataset_name == "cartpole_swingup" or dataset_name == "cheetah_run" or dataset_name == "quadruped_walk" or dataset_name == "reacher_easy":
+    elif dataset_name == "cartpole_swingup" or dataset_name == "cheetah_run" or dataset_name == "quadruped_walk" or dataset_name == "reacher_easy" or dataset_name == "ball_in_cup_catch" or dataset_name == "finger_spin":
         dataset = DMControlDataset(
                 mode=split,
                 dataset_name=dataset_name,
@@ -139,7 +139,7 @@ def unwrap_batch_data(exp_params, batch_data):
         initializer_kwargs["com_coords"] = all_reps["com_coords"]
         initializer_kwargs["bbox_coords"] = all_reps["bbox_coords"]
     elif "Robot-dataset" in exp_params["dataset"]["dataset_name"] or exp_params["dataset"]["dataset_name"] == "Causalworld"\
-        or exp_params["dataset"]["dataset_name"] == "cartpole_swingup" or exp_params["dataset"]["dataset_name"] == "cheetah_run" or exp_params["dataset"]["dataset_name"] == "quadruped_walk" or exp_params["dataset"]["dataset_name"] == "reacher_easy"\
+        or exp_params["dataset"]["dataset_name"] == "cartpole_swingup" or exp_params["dataset"]["dataset_name"] == "cheetah_run" or exp_params["dataset"]["dataset_name"] == "quadruped_walk" or exp_params["dataset"]["dataset_name"] == "reacher_easy" or exp_params["dataset"]["dataset_name"] == "ball_in_cup_catch" or exp_params["dataset"]["dataset_name"] == "finger_spin"\
         or exp_params["dataset"]["dataset_name"] == "box_close" or exp_params["dataset"]["dataset_name"] == "button_press" or exp_params["dataset"]["dataset_name"] == "drawer_close" or exp_params["dataset"]["dataset_name"] == "hammer":
       videos, targets, condition, _ = batch_data
     else:

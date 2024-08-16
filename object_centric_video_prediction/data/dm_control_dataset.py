@@ -4,7 +4,7 @@ import os.path as osp
 
 from object_centric_video_prediction.data import RobotDataset
 
-PATH = "/home/nfs/inf6/data/datasets/EwertzData/dm_control"
+PATH = "/home/nfs/inf6/data/datasets/EwertzData/dm_control_4"
 
 
 class DMControlDataset(RobotDataset):

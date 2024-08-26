@@ -100,7 +100,7 @@ class Config(dict):
 
         exp_config = os.path.join(exp_path, "experiment_params.json")
         with open(exp_config, "w") as file:
-            json.dump(exp_params, file)
+            json.dump(exp_params, file, indent=4)
         return
 
 #

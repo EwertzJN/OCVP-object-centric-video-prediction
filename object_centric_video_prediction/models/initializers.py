@@ -115,7 +115,8 @@ class Learned(nn.Module):
         self.initial_slots = torch.nn.Parameter(torch.randn(1, self.num_slots, self.slot_dim))
 
         with torch.no_grad():
-            torch.nn.init.uniform_(self.initial_slots, -1.0, 1.0)
+            limit = sqrt(6.0 / (1 + slot_dim))
+            torch.nn.init.normal_(self.initial_slots, -limit, limit)
         return
 
     def forward(self, batch_size, **kwargs):
